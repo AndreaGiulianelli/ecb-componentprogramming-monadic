@@ -3,6 +3,7 @@ package control
 import boundary.BoundaryModule
 import boundary.GUIModule
 import entity.EnvModule
+import monix.execution.Scheduler
 
 object Launch
   extends BoundaryModule.Interface
@@ -19,5 +20,7 @@ object Launch
   override val loader = LoaderImpl()
   override val launcher = LauncherImpl()
 
-  @main def main(): Unit = launcher.launch()
+  given Scheduler = monix.execution.Scheduler.global
+
+  @main def main(): Unit = launcher.launch().runAsyncAndForget
 

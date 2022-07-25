@@ -15,7 +15,6 @@ class GUI(width: Int = 200, height: Int = 150, title: String = "Test"):
     for
       frame <- io(JFrame(title))
       _ <- io(frame.setSize(100,100))
-      _ <- io(frame.setVisible(true))
     yield frame
 
   private lazy val renderBtns: Seq[MonadButton] =
@@ -31,6 +30,7 @@ class GUI(width: Int = 200, height: Int = 150, title: String = "Test"):
     for
       frame <- container.asyncBoundary(swingScheduler)
       _ <- io(renderBtns.map(_.button).foreach(frame.add))
+      _ <- io(frame.setVisible(true))
     yield ()
 
   def render(i: Int): Task[Unit] = Task {
