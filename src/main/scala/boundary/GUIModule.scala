@@ -9,9 +9,9 @@ object GUIModule:
     val gui: Boundary
   trait Component:
     class GUIBoundaryImpl extends Boundary:
-      private val gui = GUI()
-      override def init() = Task{println("init")}
-      override def render(i: Int) = Task{gui.render(i)}
+      private val guiSwing = GUI()
+      override def init() = guiSwing.init()
+      override def render(i: Int) = guiSwing.render(i)
       override def events(): Observable[String] = ???
   trait Interface extends Provider with Component
 

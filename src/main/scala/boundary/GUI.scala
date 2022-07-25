@@ -2,15 +2,39 @@ package boundary
 
 import java.awt.event.ActionEvent
 import javax.swing.{JButton, JFrame, SwingUtilities}
+import monix.eval.Task
+import ViewUtils.*
+import boundary.component.MonadButton
+import component.Events.Event
+import component.Events.Event.*
+import monix.reactive.Observable
 
-class GUI():
-  private val frame = JFrame()
-  private val btn = JButton("click me!")
-  frame.setSize(100,100)
-  frame.add(btn)
-  btn.addActionListener((e: ActionEvent) => println("cliccato"))
-  frame.setVisible(true)
+class GUI(width: Int = 200, height: Int = 150, title: String = "Test"):
 
-  def render(i: Int): Unit = SwingUtilities.invokeLater { () =>
-    println(s"render - $i")
+  private lazy val container: Task[JFrame] =
+    for
+      frame <- io(JFrame(title))
+      _ <- io(frame.setSize(100,100))
+      _ <- io(frame.setVisible(true))
+    yield frame
+
+  private lazy val renderBtns: Seq[MonadButton] =
+    Seq(
+      MonadButton("click me!", Hit(100))
+    )
+
+  def events(): Observable[Event] = Observable
+    .fromIterable(renderBtns)
+    .flatMap(_.events)
+
+  def init(): Task[Unit] =
+    for
+      frame <- container.asyncBoundary(swingScheduler)
+      _ <- io(renderBtns.map(_.button).foreach(frame.add))
+    yield ()
+
+  def render(i: Int): Task[Unit] = Task {
+    SwingUtilities.invokeLater { () =>
+      println(s"render - $i")
+    }
   }
